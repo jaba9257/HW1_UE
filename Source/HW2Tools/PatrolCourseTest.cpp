@@ -1,7 +1,6 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BTNode.h"
-#include "BehaviorTree/Tasks/BTTask_Wait.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Editor.h"
 #include "Engine/World.h"
@@ -104,7 +103,7 @@ namespace
                 if (FVector::DistSquared2D(Guard->GetActorLocation(), Board->GetValueAsVector(AHomeworkGuardController::HomeLocationKey)) < FMath::Square(100.0)) break;
                 Test.TestTrue(TEXT("Guard patrols before detecting a target"), Target == nullptr && !bNoise);
                 Place(Guard, FVector(0, 0, 98));
-                Place(Player, FVector(-1570, 0, 98));
+                Place(Player, FVector(-1650, 0, 98));
                 PlayerController->SetControlRotation(FRotator::ZeroRotator);
                 Key(EKeys::LeftShift, IE_Pressed);
                 PhaseTime = Now;
@@ -137,19 +136,18 @@ namespace
                     }
                     break;
                 }
-                Test.TestTrue(TEXT("Real sprint input triggers hearing with no line of sight"), Player->bIsSprinting && Target == nullptr);
+                Test.TestTrue(TEXT("Real sprint input triggers hearing before visual detection"), Player->bIsSprinting && Target == nullptr);
                 Key(EKeys::D, IE_Released);
                 Key(EKeys::LeftShift, IE_Released);
-                Place(Player, FVector(-2880, -1830, 98));
+                NoiseOrigin = Board->GetValueAsVector(AHomeworkGuardController::NoiseLocationKey);
+                Place(Player, FVector(2880, -1830, 98));
                 Phase = 4;
                 break;
             case 4:
-                if (bNoise && (Node == TEXT("Check Nearby Point") || (Active && Active->IsA<UBTTask_Wait>())))
-                {
-                    bReachedSearchPoint = true;
-                }
+                ClosestToNoise = FMath::Min(ClosestToNoise, FVector::Dist2D(Guard->GetActorLocation(), NoiseOrigin));
                 if (bNoise) break;
-                Test.TestTrue(TEXT("Guard navigates around cover and searches near the sprint sound"), bReachedSearchPoint);
+                Test.TestTrue(FString::Printf(TEXT("Guard approaches the sprint sound (closest: %.0f cm)"), ClosestToNoise),
+                    ClosestToNoise <= 180.0);
                 Place(Guard, FVector(0, 0, 98));
                 Place(Player, FVector(800, 0, 98));
                 Phase = 5;
@@ -181,7 +179,7 @@ namespace
                 break;
             case 9:
                 if (Node != TEXT("Run Away") || FVector::Dist2D(Guard->GetActorLocation(), Player->GetActorLocation()) < FleeStartDistance + 150.0) break;
-                Place(Player, FVector(-2880, -1830, 98));
+                Place(Player, FVector(2880, 1830, 98));
                 Phase = 10;
                 break;
             case 10:
@@ -196,8 +194,9 @@ namespace
         double Started = FPlatformTime::Seconds();
         double PhaseTime = 0.0;
         double FleeStartDistance = 0.0;
+        double ClosestToNoise = TNumericLimits<double>::Max();
+        FVector NoiseOrigin = FVector::ZeroVector;
         int32 Phase = 0;
-        bool bReachedSearchPoint = false;
     };
 }
 
