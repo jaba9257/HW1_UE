@@ -1,7 +1,9 @@
 #include "HomeworkCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "HomeworkGuardController.h"
 #include "HW1.h"
+#include "Perception/AISense_Hearing.h"
 
 AHomeworkCharacter::AHomeworkCharacter()
 {
@@ -81,6 +83,27 @@ void AHomeworkCharacter::Tick(float DeltaSeconds)
         TimeSinceSprint += Step;
         const float RecoveryStep = FMath::Max(0.0f, TimeSinceSprint - Delay) - PreviousRecoveryTime;
         Stamina = FMath::Clamp(Stamina + FMath::Max(0.0f, StaminaRegenRate) * RecoveryStep, 0.0f, MaxStamina);
+    }
+
+    UpdateSprintNoise(Step);
+}
+
+void AHomeworkCharacter::UpdateSprintNoise(float DeltaSeconds)
+{
+    const UCharacterMovementComponent* Movement = GetCharacterMovement();
+    if (!HasAuthority() || !IsPlayerControlled() || !bIsSprinting || !Movement->IsMovingOnGround()
+        || GetVelocity().SizeSquared2D() < FMath::Square(300.0f))
+    {
+        SprintNoiseCooldown = 0.0f;
+        return;
+    }
+
+    SprintNoiseCooldown -= DeltaSeconds;
+    if (SprintNoiseCooldown <= 0.0f)
+    {
+        UAISense_Hearing::ReportNoiseEvent(this, GetActorLocation(), 1.0f, this,
+            AHomeworkGuardController::SprintHearingRange, AHomeworkGuardController::SprintNoiseTag);
+        SprintNoiseCooldown = 0.4f;
     }
 }
 

@@ -21,7 +21,7 @@ public class HW1 : ModuleRules
 			"Slate"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.Add("NavigationSystem");
 
 		PublicIncludePaths.AddRange(new string[] {
 			"HW1",

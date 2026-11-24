@@ -11,5 +11,6 @@ public class HW1EditorTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V7;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_8;
 		ExtraModuleNames.Add("HW1");
+		ExtraModuleNames.Add("HW2Tools");
 	}
 }

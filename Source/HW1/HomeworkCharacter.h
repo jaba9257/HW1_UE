@@ -76,7 +76,9 @@ protected:
 
 private:
     void SetSprinting(bool bNewSprinting);
+    void UpdateSprintNoise(float DeltaSeconds);
     bool bSprintHeld = false;
     bool bExhaustedUntilRelease = false;
     float TimeSinceSprint = 0.0f;
+    float SprintNoiseCooldown = 0.0f;
 };
