@@ -11,7 +11,8 @@ enum class EHomeworkGuardState : uint8
 {
     Patrol,
     Investigate,
-    Chase
+    Chase,
+    Flee
 };
 
 UCLASS()

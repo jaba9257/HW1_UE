@@ -40,6 +40,10 @@ void AHomeworkGuard::UpdateAwarenessDisplay(EHomeworkGuardState State, const FVe
     DisplayedState = State;
     switch (State)
     {
+    case EHomeworkGuardState::Flee:
+        AwarenessLabel->SetText(LOCTEXT("Flee", "FLEE"));
+        AwarenessLabel->SetTextRenderColor(FColor(193, 144, 255));
+        break;
     case EHomeworkGuardState::Chase:
         AwarenessLabel->SetText(LOCTEXT("Chase", "CHASE"));
         AwarenessLabel->SetTextRenderColor(FColor(255, 102, 91));

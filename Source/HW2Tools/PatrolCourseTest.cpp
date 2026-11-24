@@ -161,6 +161,31 @@ namespace
                 break;
             case 6:
                 if (Target || Node != TEXT("Walk to Patrol Point")) break;
+                Place(Guard, FVector(0, 0, 98));
+                Place(Player, FVector(800, 0, 98));
+                Phase = 7;
+                break;
+            case 7:
+                if (Target != Player || Node != TEXT("Chase Player")) break;
+                FleeStartDistance = FVector::Dist2D(Guard->GetActorLocation(), Player->GetActorLocation());
+                Key(EKeys::E, IE_Pressed);
+                Phase = 8;
+                break;
+            case 8:
+                if (!Board->GetValueAsBool(AHomeworkGuardController::ShouldFleeKey)) break;
+                Key(EKeys::E, IE_Released);
+                Test.TestNull(TEXT("E interrupts the active chase"), Target);
+                Test.TestTrue(TEXT("The flee task received the player's position"),
+                    Board->GetValueAsVector(AHomeworkGuardController::FleeFromLocationKey).Equals(Player->GetActorLocation(), 5.0));
+                Phase = 9;
+                break;
+            case 9:
+                if (Node != TEXT("Run Away") || FVector::Dist2D(Guard->GetActorLocation(), Player->GetActorLocation()) < FleeStartDistance + 150.0) break;
+                Place(Player, FVector(-2880, -1830, 98));
+                Phase = 10;
+                break;
+            case 10:
+                if (Board->GetValueAsBool(AHomeworkGuardController::ShouldFleeKey) || Target || Node != TEXT("Walk to Patrol Point")) break;
                 return true;
             }
             return false;
@@ -170,6 +195,7 @@ namespace
         FAutomationTestBase& Test;
         double Started = FPlatformTime::Seconds();
         double PhaseTime = 0.0;
+        double FleeStartDistance = 0.0;
         int32 Phase = 0;
         bool bReachedSearchPoint = false;
     };

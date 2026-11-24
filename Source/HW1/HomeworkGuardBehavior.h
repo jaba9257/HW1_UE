@@ -33,3 +33,17 @@ public:
     UPROPERTY(EditAnywhere, Category="Navigation", meta=(ClampMin="1"))
     float Radius = 1200.0f;
 };
+
+UCLASS(DisplayName="Find Flee Point")
+class HW1_API UBTTask_HomeworkGuardFindFleePoint : public UBTTask_BlackboardBase
+{
+    GENERATED_BODY()
+
+public:
+    UBTTask_HomeworkGuardFindFleePoint();
+    virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
+    virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+    UPROPERTY(EditAnywhere, Category="Blackboard")
+    FBlackboardKeySelector ThreatKey;
+};
